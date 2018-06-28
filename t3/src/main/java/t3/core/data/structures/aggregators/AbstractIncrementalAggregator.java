@@ -1,25 +1,24 @@
 package t3.core.data.structures.aggregators;
 
 import t3.core.data.structures.BoardCell;
-import t3.core.data.structures.BoardCellCoordinates;
+import t3.core.data.structures.IslandPartition;
 import t3.core.data.structures.WinningCoordinate;
 
 import java.util.*;
 
 /**
- * Keeps track of stones forming a particular shape. For instance,
+ * Keeps track of nodes forming a particular shape. For instance,
  * it could be a line, diagonal or a diamond.<br><br>
  * <p>
- * Aggregators are needed to reduce time-complexity of board searches.
+ * Aggregators are needed to reduce time-complexity of board searches. Internally,
+ * store partitioned islands of nodes(cells).
  */
-public abstract class AbstractIncrementalAggregator implements IncrementalAggregator {
-    protected List<BoardCell> trackedCells = new LinkedList();
+public abstract class AbstractIncrementalAggregator implements IncrementalShapeAggregator {
+    protected IslandPartition island = new IslandPartition();
     protected List<WinningCoordinate> winning = new LinkedList();
-    protected SortedMap<Integer, Integer> playerToMarks = new TreeMap<>();
     protected int winningSegmentSize;
     private boolean completable = true;
     private Integer winner;
-    private int totalMarkedCounter = 0;
 
     public AbstractIncrementalAggregator(int winningSegmentSize) {
         this.winningSegmentSize = winningSegmentSize;
@@ -45,33 +44,13 @@ public abstract class AbstractIncrementalAggregator implements IncrementalAggreg
     /**
      * Add one stone to the aggregate.
      *
-     * @param playerId of the winner or null
+     * @param cell of the winner or null
+     * @param newPlayerId
      */
     @Override
-    public Integer putMark(Integer playerId) {
-        Integer marks = playerToMarks.getOrDefault(playerId, 0) + 1;
-        playerToMarks.put(playerId, marks);
-        totalMarkedCounter++;
-        if (playerToMarks.keySet().size() == 1) {
-            // Single player
-            // winner short-cut check
-            if (totalMarkedCounter == winningSegmentSize && winningSegmentSize == trackedCells.size()) {
-                winner = playerId;// easy case, the entire segment must be marked to win
-                return playerId; // and one player marked the entire segment, so he wins
-            }
-            return null;
-        }
-        // test if this sequence is not solvable
-        int remainder = trackedCells.size() - totalMarkedCounter;
-        if (winningSegmentSize - playerToMarks.lastKey() > remainder) {
-            completable = false; // not possible to win
-            return null;
-        }
-        // Full scan for other cases
-        for (BoardCell trackedCell : trackedCells) {
-
-        }
-        return null;
+    public Integer update(BoardCell cell, int newPlayerId) {
+        island = island.repartition(cell.getCoordinates(), newPlayerId);
+        return winner;
     }
 
     @Override
@@ -86,6 +65,8 @@ public abstract class AbstractIncrementalAggregator implements IncrementalAggreg
 
     @Override
     public void addCell(BoardCell cell) {
-        trackedCells.add(cell);
+        island.add(cell);
     }
+
+
 }

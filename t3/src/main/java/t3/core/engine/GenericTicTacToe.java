@@ -2,7 +2,7 @@ package t3.core.engine;
 
 import t3.core.data.structures.BoardCell;
 import t3.core.data.structures.BoardCellCoordinates;
-import t3.core.data.structures.aggregators.IncrementalAggregator;
+import t3.core.data.structures.aggregators.IncrementalShapeAggregator;
 import t3.core.data.structures.aggregators.XOXAggregators;
 
 import java.util.*;
@@ -14,9 +14,9 @@ public class GenericTicTacToe extends BoardGame {
 
     private int edgeLength;
     private int winingSegmentLength;
-    private List<IncrementalAggregator> diagonal = new LinkedList<>();
-    private Map<Integer, IncrementalAggregator> horizontal = new TreeMap<>();
-    private Map<Integer, IncrementalAggregator> vertical = new TreeMap<>();
+    private List<IncrementalShapeAggregator> diagonal = new LinkedList<>();
+    private Map<Integer, IncrementalShapeAggregator> horizontal = new TreeMap<>();
+    private Map<Integer, IncrementalShapeAggregator> vertical = new TreeMap<>();
 
     public GenericTicTacToe(Set<Integer> players, int n, int winingLength) {
         super(players);
@@ -28,19 +28,19 @@ public class GenericTicTacToe extends BoardGame {
     }
 
     private void initializeBoard() {
-        Map<Integer, IncrementalAggregator> left2RightDiagonalIndices1 = new TreeMap<>();
-        Map<Integer, IncrementalAggregator> left2RightDiagonalIndices2 = new TreeMap<>();
-        Map<Integer, IncrementalAggregator> right2LeftDiagonalIndices1 = new TreeMap<>();
-        Map<Integer, IncrementalAggregator> right2LeftDiagonalIndices2 = new TreeMap<>();
+        Map<Integer, IncrementalShapeAggregator> left2RightDiagonalIndices1 = new TreeMap<>();
+        Map<Integer, IncrementalShapeAggregator> left2RightDiagonalIndices2 = new TreeMap<>();
+        Map<Integer, IncrementalShapeAggregator> right2LeftDiagonalIndices1 = new TreeMap<>();
+        Map<Integer, IncrementalShapeAggregator> right2LeftDiagonalIndices2 = new TreeMap<>();
 
         for (int row = 0; row < edgeLength; row++) {
             //handling horizontal sequences
-            IncrementalAggregator horizontalAggregator = XOXAggregators.newRowAggregator(winingSegmentLength);
+            IncrementalShapeAggregator horizontalAggregator = XOXAggregators.newRowAggregator(winingSegmentLength);
             horizontal.put(row, horizontalAggregator);
             //
             for (int column = 0; column < edgeLength; column++) {
                 // handling vertical sequences
-                IncrementalAggregator verticalAggregator = vertical.get(column);
+                IncrementalShapeAggregator verticalAggregator = vertical.get(column);
                 if (verticalAggregator == null) {
                     verticalAggregator = XOXAggregators.newColumnAggregator(winingSegmentLength);
                     vertical.put(column, verticalAggregator);
@@ -51,15 +51,15 @@ public class GenericTicTacToe extends BoardGame {
                 cell.addAggregator(verticalAggregator);
                 // the following initiates diagonal sequence
                 if (isOnLeft2RightDiagonal(row, column)) {
-                    IncrementalAggregator newAggregator = XOXAggregators.newDiagonalAggregator(winingSegmentLength);
+                    IncrementalShapeAggregator newAggregator = XOXAggregators.newDiagonalAggregator(winingSegmentLength);
                     left2RightDiagonalIndices1.put(column, newAggregator);
                 }
                 if (isOnRight2LeftDiagonal(row, column)) {
-                    IncrementalAggregator newAggregator = XOXAggregators.newDiagonalAggregator(winingSegmentLength);
+                    IncrementalShapeAggregator newAggregator = XOXAggregators.newDiagonalAggregator(winingSegmentLength);
                     right2LeftDiagonalIndices1.put(column, newAggregator);
                 }
                 if (left2RightDiagonalIndices1.containsKey(column)) {
-                    IncrementalAggregator leftToRightDiagonal = left2RightDiagonalIndices1.get(column);
+                    IncrementalShapeAggregator leftToRightDiagonal = left2RightDiagonalIndices1.get(column);
                     cell.addAggregator(leftToRightDiagonal);
                     if (column + 2 > edgeLength) {// end of sequence, move to array
                         diagonal.add(leftToRightDiagonal);
@@ -69,7 +69,7 @@ public class GenericTicTacToe extends BoardGame {
                     }
                 }
                 if (right2LeftDiagonalIndices1.containsKey(column)) {
-                    IncrementalAggregator right2leftDiagonal = right2LeftDiagonalIndices1.get(column);
+                    IncrementalShapeAggregator right2leftDiagonal = right2LeftDiagonalIndices1.get(column);
                     cell.addAggregator(right2leftDiagonal);
                     if (column - 1 < 0) {
                         diagonal.add(right2leftDiagonal);

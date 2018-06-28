@@ -1,7 +1,6 @@
 package t3.core.data.structures.aggregators;
 
 import t3.core.data.structures.BoardCell;
-import t3.core.data.structures.BoardCellCoordinates;
 import t3.core.data.structures.WinningCoordinate;
 
 import java.util.List;
@@ -16,7 +15,7 @@ import java.util.List;
  * never would.
  *
  */
-public interface IncrementalAggregator {
+public interface IncrementalShapeAggregator {
 
     /**
      * Returns coordinates which if occupied complete the shape.
@@ -26,11 +25,12 @@ public interface IncrementalAggregator {
 
 
     /**
-     * Add one stone to the aggregate.
+     * Add update to the aggregate.
      *
-     * @param playerId of the winner or null
+     * @param cell cells to be updated
+     * @param newPlayerId new player ID
      */
-    Integer putMark(Integer playerId);
+    Integer update(BoardCell cell, int newPlayerId);
 
     /**
      * True if tracks a row.

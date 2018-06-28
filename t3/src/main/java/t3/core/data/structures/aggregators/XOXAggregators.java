@@ -40,15 +40,15 @@ public class XOXAggregators {
         }
     }
 
-    public static IncrementalAggregator newRowAggregator(int winningSegmentSize) {
+    public static IncrementalShapeAggregator newRowAggregator(int winningSegmentSize) {
         return new RowAggregator(winningSegmentSize);
     }
 
-    public static IncrementalAggregator newColumnAggregator(int winningSegmentSize) {
+    public static IncrementalShapeAggregator newColumnAggregator(int winningSegmentSize) {
         return new ColumnAggregator(winningSegmentSize);
     }
 
-    public static IncrementalAggregator newDiagonalAggregator(int winningSegmentSize) {
+    public static IncrementalShapeAggregator newDiagonalAggregator(int winningSegmentSize) {
         return new DiagonalAggregator(winningSegmentSize);
     }
 
