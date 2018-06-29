@@ -34,48 +34,114 @@ public class IslandPartition {
     /**
      * Insert before the head and removes link to the other partition.
      *
-     * @param node
+     * @param forPlayerId
      */
-    void mergeFromWest(Node node) {
-        head.previous = node;
-        node.next = head;
-        head = node;
-        head.previous = null;
+    IslandPartition mergeFromWest(int forPlayerId) {
+        if (west == null) {
+            throw new IllegalStateException("No western partition to merge with");
+        }
+        Node newHead = west.tail;
+        head.previous = newHead;
+        west.moveTail();
+        newHead.next = head;
+        newHead.previous = null;
+        head = newHead;
+        nodes.put(newHead.cell.getCoordinates(), newHead);
+        if (west.getSize() == 0) {
+            west = null;
+            return this;
+        }
+        if (west.getSize() == 1) {
+            if (west.west == null) {
+                return west; // edge
+            }
+            west = west.west;// expand to the east
+            west.east = this;// fix eastern pointer, one cell partition get lost
+            if (west != null && west.belongsTo == forPlayerId) {// if east from the gap we took is ours then merge
+                this.mergeFromWest(forPlayerId);
+            }
+        }
+        return west;
     }
 
-    /**
-     * Insert after the tail and removes link to the other partition.
-     *
-     * @param node
-     */
-    void mergeFromEast(Node node) {
-        tail.previous = node;
-        node.next = head;
-        tail = node;
-        head.previous = null;
+    private void moveTail() {
+        nodes.remove(tail.cell.getCoordinates());// shrink it
+        if (tail.previous == null)
+            return;
+        tail.previous.next = null;
+        tail = tail.previous;
     }
 
-    /**
-     * Chops the head.
-     */
-    void chopHead() {
-        Node oldHead = head;
+    private void moveHead() {
+        nodes.remove(head.cell.getCoordinates());// shrink it
+        if (head.next == null)
+            return;
+        head.next.previous = null;
         head = head.next;
+    }
+
+    /**
+     * Takes over a small tip of unallocated space or merges to the other partition of this player.
+     *
+     */
+    void mergeFromEast(int forPlayerId) {
+        if (east == null) {
+            throw new IllegalStateException("No eastern partition to merge with");
+        }
+        Node newTail = east.head;
+        tail.next = newTail;
+        east.moveHead();
+        newTail.previous = tail;
+        newTail.next = null;
+        tail = newTail;
+        nodes.put(newTail.cell.getCoordinates(), newTail);
+        if (east.getSize() == 0) {
+            east = null;
+            return;
+        }
+        if (east.getSize() == 1) {
+            if (east.east == null) {
+                return; // edge
+            }
+            east = east.east;// expand to the east
+            east.west = this;// fix eastern pointer, one cell partition get lost
+            if (east != null && east.belongsTo == forPlayerId) {// if east from the gap we took is ours then merge
+                this.mergeFromEast(forPlayerId);
+            }
+        }
+    }
+
+    /**
+     * Separates western tip from this partition.
+     */
+    IslandPartition chopWesternTip(int forPlayerId) {
+        Node oldHead = head;
+        IslandPartition newWest = new IslandPartition(oldHead, forPlayerId);
+        head = head.next;
+        head.previous = null;
         oldHead.next = null;
         nodes.remove(oldHead.cell.getCoordinates());
+        newWest.east = this;
+        this.west = newWest;
+        return newWest;
     }
 
     /**
      * Chops the tail and connects with a break away partition.
-     * @param newEastPartition
+     * @param forPlayerId
      */
-    void chopTailAndConnectTo(IslandPartition newEastPartition) {
+    IslandPartition chopEasternTipAndAttachTo(int forPlayerId) {
         Node oldTail = tail;
         tail = tail.previous;
-        tail.next = null;
+        IslandPartition newEast = new IslandPartition(oldTail, forPlayerId);
+        oldTail.previous = null;
+        if (tail != null) {
+            tail.next = null;
+        }
         nodes.remove(oldTail.cell.getCoordinates());
-        newEastPartition.west = this;
-        east = newEastPartition;
+        newEast.west = this;
+        this.east = newEast;
+        return this;
     }
 
     /**
@@ -95,68 +161,76 @@ public class IslandPartition {
             currentPartition = currentPartition.east;// look for given coordinates in the next partition
         }
         if (node == null) {
-            throw new IllegalArgumentException("Unknown node");
+            throw new IllegalArgumentException("Unknown node with " + coordinates.toString());
         }
         IslandPartition easternIsland = currentPartition.east;
         IslandPartition westernIsland = currentPartition.west;
         if (node.isTail()) {// is eastern edge of the original partition?
             if (easternIsland != null) {
-                if (easternIsland.belongsTo == node.cell.getPlayerId()) {
-                    easternIsland.mergeFromWest(node);
-                    return this;
+                if (easternIsland.belongsTo == null) {
+                    return currentPartition.chopEasternTipAndAttachTo(newPlayerId);
+                }
+                if (easternIsland.belongsTo == newPlayerId) {
+                    return easternIsland.mergeFromWest(newPlayerId);
                 } else {
-                    easternIsland.chopHead();
-                    return this;
+                    return easternIsland.chopWesternTip(newPlayerId);
                 }
             }
-            IslandPartition newEastPartition = new IslandPartition(node, newPlayerId);
-            currentPartition.chopTailAndConnectTo(newEastPartition);
-            return this;
+            if (currentPartition.getSize() > 1) {
+                currentPartition.chopEasternTipAndAttachTo(newPlayerId);
+                return this;
+            }
         }
         if (node.isHead()) {// is western edge of the original partition?
             if (westernIsland != null) {
-                if (westernIsland.belongsTo == node.cell.getPlayerId()) {
+                if (westernIsland.belongsTo == newPlayerId) {
                     // merge with the west partition
-                    westernIsland.mergeFromEast(node);
+                    westernIsland.mergeFromEast(newPlayerId);
                     return this;
                 } else {
-                    IslandPartition newEastPartition = new IslandPartition(node, newPlayerId);
-                    westernIsland.chopTailAndConnectTo(newEastPartition);
+                    westernIsland.chopEasternTipAndAttachTo(newPlayerId);
                     return this;
                 }
             }
-            currentPartition.chopHead();
-            IslandPartition newWestIsland = new IslandPartition(node, newPlayerId);
-            newWestIsland.east = currentPartition;
-            currentPartition.west = newWestIsland;
-            return newWestIsland;
+            return currentPartition.chopWesternTip(newPlayerId);
         }
         //in the middle
-        IslandPartition newWestIsland = new IslandPartition();
-        newWestIsland.head = this.head;
-        newWestIsland.tail = node.previous;
-        if (newWestIsland.tail != null) {
-            newWestIsland.tail.next = null;
-        }
-        IslandPartition newEastIsland = new IslandPartition();
-        newEastIsland.head = node.next;
-        newEastIsland.tail = this.tail;
-        // new islands partitioned, now connect them
-        newWestIsland.east = this;
-        newWestIsland.west = this.west;
-        newEastIsland.west = this;
-        newEastIsland.east = this.east;
-        this.east = newEastIsland;
-        this.west = newWestIsland;
-        newEastIsland.belongsTo = this.belongsTo;
-        newWestIsland.belongsTo = this.belongsTo;
-        this.belongsTo = newPlayerId;
-        return newWestIsland;
+        currentPartition.splitInThree(node, newPlayerId);
+        return this;
+    }
+
+    private void splitInThree(Node middleNode, int newPlayerId) {
+        IslandPartition middlePartition = new IslandPartition(middleNode, newPlayerId);
+        middlePartition.tail = middleNode;
+        Node easternPartitionTip = middleNode.next;
+        easternPartitionTip.previous = null;
+        middleNode.next = null;
+        IslandPartition easternPartition = new IslandPartition(easternPartitionTip, belongsTo);
+        easternPartition.tail = tail;
+        nodes.remove(middleNode.cell.getCoordinates());
+        tail = middleNode.previous;
+        tail.next = null;
+        middleNode.previous.next = null;
+        middleNode.previous = null;
+        do {
+            nodes.remove(easternPartitionTip.cell.getCoordinates());
+            easternPartition.addNode(easternPartitionTip);
+            easternPartitionTip = easternPartitionTip.next;
+        } while (easternPartitionTip != null);
+        east = middlePartition;
+        middlePartition.west = this;
+        middlePartition.east = easternPartition;
+        easternPartition.west = middlePartition;
+        middlePartition.belongsTo = newPlayerId;
+    }
+
+    private void addNode(Node newNode) {
+        nodes.put(newNode.cell.getCoordinates(), newNode);
     }
 
     public void add(BoardCell cell) {
         if (belongsTo != null) {
-            new IllegalStateException("Cells may be added to unmarked partitions only");
+            new IllegalStateException("Only unmarked cells may be added");
         }
         if (nodes.containsKey(cell.getCoordinates())) {
             new IllegalArgumentException("Loop prevented");
