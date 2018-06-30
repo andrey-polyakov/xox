@@ -1,5 +1,6 @@
 package t3.core.data.structures;
 
+import misc.CellUtil;
 import org.junit.Before;
 import org.junit.Test;
 import t3.core.data.structures.aggregators.IncrementalShapeAggregator;
@@ -14,6 +15,7 @@ public class BoardCellAggregatorTest {
 
     private BoardCell[] cells;
     private IncrementalShapeAggregator aggregator;
+    private static final BoardCellCoordinates pivot = new BoardCellCoordinates(0, 2);
 
     /**
      * Boiler plate code associating cells with aggregator
@@ -39,27 +41,42 @@ public class BoardCellAggregatorTest {
         }
         winner = cells[3].mark(1);
         assertNull("No winner", winner);//XX_X_  enough cells but with a gap
-        winner = cells[2].mark(1);//       XXXX_  victorious combination
+        winner = cells[2].mark(1);//    XXXX_  victorious combination
 
-        assertEquals("Winner Id is inconsistent between cells and underlying aggregator",
-                Integer.valueOf(1), aggregator.getWinner());
+        assertEquals("Winner Id mismatch", Integer.valueOf(1), aggregator.getWinner());
         assertEquals("Unexpected winner", Integer.valueOf(1), winner);
+    }
+
+    private void gapSetup(int player2) {
+        attachAggregator(3);
+        assertNull("Should be no winner yet", cells[0].mark(1));
+        assertTrue(aggregator.getWinningCoordinates().isEmpty());
+        assertNull("Should be no winner yet", cells[1].mark(1));
+        assertEquals("Expected exactly one combination", 1, aggregator.getWinningCoordinates().size());
+        assertTrue(aggregator.getWinningCoordinates().get(pivot).contains(1));
+
+        for (int ii = 3; ii < cells.length; ii++) {
+            assertNull("Should be no winner yet", cells[ii].mark(player2));
+        }
+        assertEquals("Expected exactly one combination", 1, aggregator.getWinningCoordinates().size());
     }
 
     @Test
     public void twoPlayersCanWinTest() {
-        attachAggregator(3);
-        for (int ii = 0; ii < 2; ii++) {
-            assertNull("Should be no winner in this setup", cells[ii].mark(1));
-        }
-        for (int ii = 3; ii < cells.length; ii++) {
-            assertNull("Should be no winner in this setup", cells[ii].mark(2));
-        }
-        assertEquals("Expected only two combinations", 2, aggregator.getWinningCoordinates().size());
-        BoardCellCoordinates gap = new BoardCellCoordinates(0, 2);
-        assertEquals("Only one coordinate expected", aggregator.getWinningCoordinates().size());
-        assertTrue("Expected 1", aggregator.getWinningCoordinates().get(0).getPlayers().contains(1));
-        assertTrue("Expected 2", aggregator.getWinningCoordinates().get(0).getPlayers().contains(2));
+        gapSetup(2);
+        assertEquals(2, aggregator.getWinningCoordinates().get(pivot).size());
+        assertTrue(aggregator.getWinningCoordinates().get(pivot).contains(1));
+        assertTrue(aggregator.getWinningCoordinates().get(pivot).contains(2));
+        assertEquals("Player 1 expected to win", Integer.valueOf(1), cells[2].mark(1));
+    }
+
+    @Test
+    public void onePlayerFillTheGapTest() {
+        gapSetup(1);
+        assertEquals(1, aggregator.getWinningCoordinates().get(pivot).size());
+        assertTrue(aggregator.getWinningCoordinates().get(pivot).contains(1));
+        assertEquals(1, aggregator.getWinningCoordinates().size());
+        assertEquals("Player 1 expected to win", Integer.valueOf(1), cells[2].mark(1));
     }
 
     @Test
@@ -67,11 +84,9 @@ public class BoardCellAggregatorTest {
         attachAggregator(cells.length);
         for (int ii = 0; ii < 4; ii++) {
             cells[ii].mark(1);
-            assertEquals("Player 1 still must be able to win", true, aggregator.isCompletable());
         }
         Integer winner = cells[4].mark(1);
-        assertEquals("Winner Id is inconsistent between cells and underlying aggregator",
-                Integer.valueOf(1), aggregator.getWinner());
+        assertEquals("Cells and underlying aggregator mismatch", Integer.valueOf(1), aggregator.getWinner());
         assertEquals("Unexpected winner", Integer.valueOf(1), winner);
     }
 
@@ -80,11 +95,9 @@ public class BoardCellAggregatorTest {
         attachAggregator(cells.length);
         for (int ii = 0; ii < 3; ii++) {
             cells[ii].mark(1);
-            assertEquals("Player 1 still must be able to win", true, aggregator.isCompletable());
         }
         // there is one unmarked cell
         assertFalse(cells[3].isMarked());
         cells[4].mark(2);
-        assertEquals("Must not be winnable: xxx_o", false, aggregator.isCompletable());
     }
 }

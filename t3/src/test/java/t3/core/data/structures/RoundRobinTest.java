@@ -23,9 +23,10 @@ public class RoundRobinTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void roundRobinTest2() {
+    public void roundRobinValidationTest() {
         Set<Integer> items = new TreeSet<>();
         items.add(1);
         new RoundRobin(items);
     }
+
 }

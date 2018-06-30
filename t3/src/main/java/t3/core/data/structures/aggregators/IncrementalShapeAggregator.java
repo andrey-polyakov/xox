@@ -1,9 +1,10 @@
 package t3.core.data.structures.aggregators;
 
 import t3.core.data.structures.BoardCell;
-import t3.core.data.structures.WinningCoordinate;
+import t3.core.data.structures.BoardCellCoordinates;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Ever increasing aggregator which keep track of
@@ -21,7 +22,7 @@ public interface IncrementalShapeAggregator {
      * Returns coordinates which if occupied complete the shape.
      * @return
      */
-    List<WinningCoordinate> getWinningCoordinates();
+    Map<BoardCellCoordinates, Set<Integer>> getWinningCoordinates();
 
 
     /**
@@ -56,13 +57,6 @@ public interface IncrementalShapeAggregator {
     default boolean isDiagonalLineSegment() {
         return false;
     }
-
-    /**
-     * True if no player can complete the shape.
-     *
-     * @return
-     */
-    boolean isCompletable();
 
     /**
      *

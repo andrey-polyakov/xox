@@ -74,6 +74,6 @@ public class BoardCell {
 
     @Override
     public String toString() {
-        return "Cell{" + coordinates + ", playerId=" + playerId + '}';
+        return coordinates.toString();
     }
 }

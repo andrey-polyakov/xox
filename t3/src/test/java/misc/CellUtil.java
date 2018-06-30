@@ -1,4 +1,7 @@
-package t3.core.data.structures;
+package misc;
+
+import t3.core.data.structures.BoardCell;
+import t3.core.data.structures.BoardCellCoordinates;
 
 public class CellUtil {
 

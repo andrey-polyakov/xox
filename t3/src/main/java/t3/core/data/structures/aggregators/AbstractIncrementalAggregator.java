@@ -1,8 +1,8 @@
 package t3.core.data.structures.aggregators;
 
 import t3.core.data.structures.BoardCell;
-import t3.core.data.structures.IslandPartition;
-import t3.core.data.structures.WinningCoordinate;
+import t3.core.data.structures.BoardCellCoordinates;
+import t3.core.data.structures.PartitionedIsland;
 
 import java.util.*;
 
@@ -14,8 +14,8 @@ import java.util.*;
  * store partitioned islands of nodes(cells).
  */
 public abstract class AbstractIncrementalAggregator implements IncrementalShapeAggregator {
-    protected IslandPartition island = new IslandPartition();
-    protected List<WinningCoordinate> winning = new LinkedList();
+    protected PartitionedIsland island = new PartitionedIsland();
+    protected Map<BoardCellCoordinates, Set<Integer>> winning = new TreeMap<>();
     protected int winningSegmentSize;
     private boolean completable = true;
     private Integer winner;
@@ -34,28 +34,66 @@ public abstract class AbstractIncrementalAggregator implements IncrementalShapeA
      * @return
      */
     @Override
-    public List<WinningCoordinate> getWinningCoordinates() {
+    public Map<BoardCellCoordinates, Set<Integer>> getWinningCoordinates() {
         if (!completable) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
-        return Collections.unmodifiableList(winning);
+        PartitionedIsland current = island.getWestmostPoint();
+        int west = 0, center = 0, east = 0;
+        do {
+            if (current.isFree()) {
+                BoardCellCoordinates winningCoordinate = current.getHead().getCoordinates();
+                // xx____ long gap
+                if (current.getWest() != null) {
+                    west = current.getWest().getSize();
+                    if (west + 1 >= winningSegmentSize) {
+                        recordWinner(winningCoordinate, current.getWest().getBelongsTo());
+                    }
+                }
+                // ____xx long gap
+                if (current.getEast() != null) {
+                    east =  current.getEast().getSize();
+                    if (east + 1 >= winningSegmentSize) {
+                        recordWinner(winningCoordinate, current.getEast().getBelongsTo());
+                    }
+                }
+                if (current.getEast() == null || current.getWest() == null) {
+                    current = current.getEast();
+                    continue;
+                }
+                // xxxx_xx short gap
+                if (current.getSize() == 1 && east + west + 1 >= winningSegmentSize) {
+                    //is this a gap between partitions of the same player?
+                    if (current.getWest().getBelongsTo() == current.getEast().getBelongsTo()) {
+                        recordWinner(winningCoordinate, current.getWest().getBelongsTo());
+                    }
+                }
+            }
+            current = current.getEast();
+        } while (current != null);
+        return Collections.unmodifiableMap(winning);
+    }
+
+    private void recordWinner(BoardCellCoordinates coordinates, int winnerId) {
+        Set<Integer> winners = winning.getOrDefault(coordinates, new TreeSet<>());
+        winners.add(winnerId);
+        winning.put(coordinates, winners);
     }
 
     /**
-     * Add one stone to the aggregate.
+     * Add the aggregate with a new mark.
      *
      * @param cell of the winner or null
      * @param newPlayerId
      */
     @Override
     public Integer update(BoardCell cell, int newPlayerId) {
-        island = island.repartition(cell.getCoordinates(), newPlayerId);
+        island = island.repartition(cell.getCoordinates(), newPlayerId).getWestmostPoint();
+        PartitionedIsland currentPartition = island.getPartition(cell.getCoordinates());
+        if (currentPartition.getSize() >= winningSegmentSize) {
+            winner = currentPartition.getBelongsTo();
+        }
         return winner;
-    }
-
-    @Override
-    public boolean isCompletable() {
-        return completable;
     }
 
     @Override

@@ -8,8 +8,8 @@ import java.util.Set;
 public class WinningCoordinate extends BoardCellCoordinates {
     private Set<Integer> players;
 
-    public WinningCoordinate(int row, int col, Set<Integer> players) {
-        super(row, col);
+    public WinningCoordinate(BoardCellCoordinates coordinates, Set<Integer> players) {
+        super(coordinates.getRow(), coordinates.getColumn());
         this.players = players;
     }
 

@@ -32,9 +32,6 @@ public class BoardCellCoordinates implements Comparable<BoardCellCoordinates> {
 
     @Override
     public String toString() {
-        return "@{" +
-                "row=" + row +
-                ", column=" + column +
-                '}';
+        return row + ":" + column;
     }
 }
