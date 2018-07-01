@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class RoundRobinTest {
@@ -16,10 +17,10 @@ public class RoundRobinTest {
         items.add(2);
         items.add(3);
         RoundRobin systemUnderTest = new RoundRobin(items);
-        RoundRobin.Node one = systemUnderTest.getHead();
-        RoundRobin.Node two = one.getNext();
-        RoundRobin.Node three = two.getNext();
-        assertTrue(one == three);
+        assertEquals(1, systemUnderTest.passTurn().intValue());
+        assertEquals(2, systemUnderTest.passTurn().intValue());
+        assertEquals(3, systemUnderTest.passTurn().intValue());
+        assertEquals(1, systemUnderTest.passTurn().intValue());
     }
 
     @Test(expected = IllegalArgumentException.class)

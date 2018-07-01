@@ -14,12 +14,14 @@ public class GenericTicTacToe extends BoardGame {
 
     private int edgeLength;
     private int winingSegmentLength;
-    private List<IncrementalShapeAggregator> diagonal = new LinkedList<>();
-    private Map<Integer, IncrementalShapeAggregator> horizontal = new TreeMap<>();
-    private Map<Integer, IncrementalShapeAggregator> vertical = new TreeMap<>();
+    private List<IncrementalShapeAggregator> aggregators = new LinkedList<>();
+
 
     public GenericTicTacToe(Set<Integer> players, int n, int winingLength) {
         super(players);
+        if (n < 3 || n > 10) {
+            throw new IllegalArgumentException("Valid board length is between 3 and 10.");
+        }
         edgeLength = n;
         cells = new BoardCell[n][n];
         winingSegmentLength = winingLength;
@@ -27,7 +29,15 @@ public class GenericTicTacToe extends BoardGame {
         initializeBoard();
     }
 
+    /**
+     * Goes over all possibly winnable shapes and beef up aggregators with corresponding cells. Cell may report
+     * to more than one aggregator. For instance, cell always belong to vertical and horizontal lines. It may or may not
+     * belong to a number of diagonal lines too.
+     */
     private void initializeBoard() {
+        List<IncrementalShapeAggregator> diagonal = new LinkedList<>();
+        Map<Integer, IncrementalShapeAggregator> horizontal = new TreeMap<>();
+        Map<Integer, IncrementalShapeAggregator> vertical = new TreeMap<>();
         Map<Integer, IncrementalShapeAggregator> left2RightDiagonalIndices1 = new TreeMap<>();
         Map<Integer, IncrementalShapeAggregator> left2RightDiagonalIndices2 = new TreeMap<>();
         Map<Integer, IncrementalShapeAggregator> right2LeftDiagonalIndices1 = new TreeMap<>();
@@ -85,6 +95,9 @@ public class GenericTicTacToe extends BoardGame {
             right2LeftDiagonalIndices1.putAll(right2LeftDiagonalIndices2);
             right2LeftDiagonalIndices2.clear();
         }
+        aggregators.addAll(diagonal);
+        aggregators.addAll(vertical.values());
+        aggregators.addAll(horizontal.values());
     }
 
     private boolean isOnLeft2RightDiagonal(int row, int column) {
@@ -109,5 +122,17 @@ public class GenericTicTacToe extends BoardGame {
         return false;//no edge
     }
 
-
+    Map<BoardCellCoordinates, Set<Integer>> getWinningCoordinates() {
+        Map<BoardCellCoordinates, Set<Integer>> jackPot= new TreeMap<>();
+        for (IncrementalShapeAggregator aggregator : aggregators) {
+            for (Map.Entry<BoardCellCoordinates, Set<Integer>> item : aggregator.getWinningCoordinates().entrySet()) {
+                if (jackPot.containsKey(item.getKey())) {
+                    jackPot.get(item.getKey()).addAll(item.getValue());
+                } else {
+                    jackPot.put(item.getKey(), item.getValue());
+                }
+            }
+        }
+        return jackPot;
+    }
 }

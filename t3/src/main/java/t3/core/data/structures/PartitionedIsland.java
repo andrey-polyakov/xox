@@ -68,8 +68,6 @@ public class PartitionedIsland {
 
     private void shrinkHead() {
         nodes.remove(head.cell.getCoordinates());// shrink it
-        if (head.next == null)
-            return;
         head.next.previous = null;
         head = head.next;
     }
@@ -90,10 +88,6 @@ public class PartitionedIsland {
         tail = newTail;
         nodes.put(newTail.cell.getCoordinates(), newTail);
         islandMap.put(newTail.cell.getCoordinates(), this);
-        if (east.getSize() == 0) {
-            east = null;
-            return;
-        }
     }
 
     /**
@@ -101,10 +95,13 @@ public class PartitionedIsland {
      */
     private PartitionedIsland chopWesternTip(int forPlayerId) {
         Node oldHead = head;
-        PartitionedIsland newWest = new PartitionedIsland(oldHead, forPlayerId, this);
         head = head.next;
-        head.previous = null;
+        PartitionedIsland newWest = new PartitionedIsland(oldHead, forPlayerId, this);
+        islandMap.put(oldHead.getCoordinates(), newWest);
         oldHead.next = null;
+        if (head != null) {
+            head.previous = null;
+        }
         nodes.remove(oldHead.cell.getCoordinates());
         newWest.east = this;
         this.west = newWest;
@@ -116,14 +113,16 @@ public class PartitionedIsland {
      * @param forPlayerId
      */
     private void chopEasternTip(int forPlayerId) {
+        if (getSize() == 1) {
+            belongsTo = forPlayerId;
+            return;
+        }
         Node oldTail = tail;
         tail = tail.previous;
         PartitionedIsland newEast = new PartitionedIsland(oldTail, forPlayerId, this);
         oldTail.previous = null;
         if (tail != null) {
             tail.next = null;
-        } else {
-            throw new IllegalStateException("Null tail");
         }
         nodes.remove(oldTail.cell.getCoordinates());
         newEast.west = this;
@@ -166,11 +165,9 @@ public class PartitionedIsland {
                 getPartition(coordinates).absorbNeighbours(newPlayerId);
                 return getPartition(coordinates);
             }
-            if (currentPartition.getSize() > 1) {
-                currentPartition.chopEasternTip(newPlayerId);// account for the gap
-                getPartition(coordinates).absorbNeighbours(newPlayerId);
-                return getPartition(coordinates);
-            }
+            currentPartition.chopEasternTip(newPlayerId);
+            getPartition(coordinates).absorbNeighbours(newPlayerId);
+            return getPartition(coordinates);
         }
         if (node.isHead()) {// is western edge of the original partition?
             if (westernIsland != null) {

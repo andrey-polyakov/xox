@@ -10,7 +10,7 @@ import java.util.*;
  * Represents board game and does answer some useful questions. It ensures games goes on according to the rules.
  * <br><br>
  * Terminology wise, every board has cells where players put marks in them. Players want to
- * put marks in winning shapes.
+ * put marks in winning shapes like 4 in line on 4x4 board.
  */
 public class BoardGame {
     protected RoundRobin turnsSchedule;
@@ -25,12 +25,20 @@ public class BoardGame {
     /**
      * Given player makes a mark in a cell.
      * @param coordinates
-     * @param playerId
      * @return
      */
-    public int takeTurn(BoardCellCoordinates coordinates, int playerId) {
+    public Integer takeTurn(BoardCellCoordinates coordinates) {
+        int playerId = turnsSchedule.passTurn();
         winner = cells[coordinates.getRow()][coordinates.getColumn()].mark(playerId);
         return winner;
+    }
+
+    /**
+     *
+     * @return id of the player who plays next.
+     */
+    public int getNextPlayer() {
+        return turnsSchedule.getNextPlayer();
     }
 
     /**

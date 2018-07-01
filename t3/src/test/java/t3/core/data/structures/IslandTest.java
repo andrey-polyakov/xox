@@ -97,19 +97,19 @@ public class IslandTest {
     public void eastToWestTest() {
         StubAgg a = new StubAgg(5);
         Integer RUSSIAN = 5;
-        BoardCell[] prussia = CellUtil.create1x5();
-        for (BoardCell cell : prussia) {
+        BoardCell[] finland = CellUtil.create1x5();
+        for (BoardCell cell : finland) {
             cell.addAggregator(a);
         }
-        int size = prussia.length;
-        for (BoardCell cell : rangeClosed(1, size).mapToObj(i -> prussia[size - i]).collect(Collectors.toList())) {
+        int size = finland.length;
+        for (BoardCell cell : rangeClosed(1, size).mapToObj(i -> finland[size - i]).collect(Collectors.toList())) {
             cell.mark(RUSSIAN);
         }
         PartitionedIsland systemUnderTest = a.getIsland();
         assertNull(systemUnderTest.getEast());
         assertNull(systemUnderTest.getWest());
         assertEquals(RUSSIAN, systemUnderTest.getBelongsTo());
-        assertEquals(prussia.length, systemUnderTest.getSize());
+        assertEquals(finland.length, systemUnderTest.getSize());
     }
 
     @Test

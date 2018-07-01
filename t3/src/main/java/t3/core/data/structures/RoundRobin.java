@@ -16,9 +16,10 @@ public class RoundRobin {
         Iterator<Integer> iterator = list.iterator();
         Node previous = head = new Node(iterator.next());
         while (iterator.hasNext()) {
-            previous.setNext(new Node(iterator.next()));
+            head.setNext(new Node(iterator.next()));
+            head = head.next;
         }
-        previous.setNext(head);
+        head.setNext(previous);
     }
 
     /**

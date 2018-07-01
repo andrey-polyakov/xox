@@ -5,20 +5,26 @@ import org.junit.Test;
 import t3.core.data.structures.BoardCell;
 import t3.core.data.structures.BoardCellCoordinates;
 
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
+import static javax.swing.UIManager.get;
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertNull;
 
 public class BoardTest {
 
+    public static final int WINNING_SCORE = 3;
     private Set<Integer> players = new TreeSet<>();
+    private Set<Integer> trio = new TreeSet<>();
 
     @Before
     public void init() {
         players.add(1);
         players.add(2);
+        trio.addAll(players);
+        trio.add(3);
     }
 
     @Test
@@ -74,6 +80,45 @@ public class BoardTest {
             assertTrue(coordinate.toString(), cell.getAggregators().stream().anyMatch(item -> item.isDiagonalLineSegment()));
             assertEquals(coordinate.toString(), expected,  cell.getAggregators().size());
         }
+    }
+
+    @Test
+    public void basic4x4x3Test() {
+        GenericTicTacToe systemUnderTest = new GenericTicTacToe(players, 4, WINNING_SCORE);
+        assertNull(systemUnderTest.takeTurn(new BoardCellCoordinates(0, 0)));
+        assertNull(systemUnderTest.takeTurn(new BoardCellCoordinates(1, 1)));
+        assertNull(systemUnderTest.takeTurn(new BoardCellCoordinates(2, 0)));
+        assertNull(systemUnderTest.takeTurn(new BoardCellCoordinates(2, 2)));
+        assertNull(systemUnderTest.takeTurn(new BoardCellCoordinates(0, 2)));
+
+        Map<BoardCellCoordinates, Set<Integer>> jackPot = systemUnderTest.getWinningCoordinates();
+        assertEquals("See illustration",3, jackPot.size());
+        // 3 * 1 - mark of player I
+        // 2 * 2 - mark of player II
+        // 2 * X - where #1 can win
+        // 1 * Y - where #2 can win
+        //
+        //  1 X 1 _
+        //  X 2 _ _
+        //  1 _ 2 _
+        //  _ _ _ Y
+        //
+        // winning score : 3
+        int[] data = {10,20,30,40,50,60,71,80,90,91};
+
+        List<Set<Integer>> cells = new LinkedList<>();
+        cells.add(jackPot.get(new BoardCellCoordinates(0, 1)));
+        cells.add(jackPot.get(new BoardCellCoordinates(1, 0)));
+        for (Set<Integer> cell : cells) {
+            assertNotNull(cell);
+            assertTrue(cell.contains(1));
+            assertEquals(1, cell.size());
+        }
+
+        Set<Integer> cell33 = jackPot.get(new BoardCellCoordinates(3, 3));
+        assertNotNull(cell33);
+        assertEquals(1, cell33.size());
+        assertTrue(cell33.contains(2));
     }
 
 
