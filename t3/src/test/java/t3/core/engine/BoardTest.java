@@ -29,7 +29,7 @@ public class BoardTest {
 
     @Test
     public void board554Test() {
-        GenericTicTacToe systemUnderTest = new GenericTicTacToe(players, 5, 4);
+        GenericTicTacToe systemUnderTest = new GenericTicTacToe(players, 5, 4, false);
         BoardCellCoordinates[] coordinates = {
                 // left to right diagonal
                 new BoardCellCoordinates(0, 0),
@@ -45,7 +45,7 @@ public class BoardTest {
 
     @Test
     public void board553Test() {
-        GenericTicTacToe systemUnderTest = new GenericTicTacToe(players, 5, 3);
+        GenericTicTacToe systemUnderTest = new GenericTicTacToe(players, 5, 3, false);
         BoardCellCoordinates [] coordinates = {
                 new BoardCellCoordinates(0, 0),
                 new BoardCellCoordinates(0, 1),
@@ -84,7 +84,7 @@ public class BoardTest {
 
     @Test
     public void basic4x4x3Test() {
-        GenericTicTacToe systemUnderTest = new GenericTicTacToe(players, 4, WINNING_SCORE);
+        GenericTicTacToe systemUnderTest = new GenericTicTacToe(players, 4, WINNING_SCORE, false);
         assertNull(systemUnderTest.takeTurn(new BoardCellCoordinates(0, 0)));
         assertNull(systemUnderTest.takeTurn(new BoardCellCoordinates(1, 1)));
         assertNull(systemUnderTest.takeTurn(new BoardCellCoordinates(2, 0)));
@@ -95,8 +95,8 @@ public class BoardTest {
         assertEquals("See illustration",3, jackPot.size());
         // 3 * 1 - mark of player I
         // 2 * 2 - mark of player II
-        // 2 * X - where #1 can win
-        // 1 * Y - where #2 can win
+        // 2 * X - where #1 can win: 0,1 & 1,0
+        // 1 * Y - where #2 can win: 3,3
         //
         //  1 X 1 _
         //  X 2 _ _

@@ -32,6 +32,7 @@ public class BoardCell {
             // if it breaks here we will not be able to recover
             Integer winner = aggregator.update(this, newPlayerId);
             if (winner != null) {
+                this.playerId = newPlayerId;
                 return winner;// short cut as the game is over
             }
         }

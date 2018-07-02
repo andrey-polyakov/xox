@@ -15,10 +15,11 @@ public class GenericTicTacToe extends BoardGame {
     private int edgeLength;
     private int winingSegmentLength;
     private List<IncrementalShapeAggregator> aggregators = new LinkedList<>();
+    private List<BoardCellCoordinates> corners = new LinkedList<>();
 
 
-    public GenericTicTacToe(Set<Integer> players, int n, int winingLength) {
-        super(players);
+    public GenericTicTacToe(Set<Integer> players, int n, int winingLength, boolean randomTurnOrder) {
+        super(players, randomTurnOrder);
         if (n < 3 || n > 10) {
             throw new IllegalArgumentException("Valid board length is between 3 and 10.");
         }
@@ -27,6 +28,11 @@ public class GenericTicTacToe extends BoardGame {
         winingSegmentLength = winingLength;
         remainingCells = edgeLength * edgeLength;
         initializeBoard();
+        corners.add(cells[0][0].getCoordinates());
+        corners.add(cells[0][cells[0].length - 1].getCoordinates());
+        corners.add(cells[cells[0].length - 1][0].getCoordinates());
+        corners.add(cells[cells[0].length - 1][cells[0].length - 1].getCoordinates());
+        corners = Collections.unmodifiableList(corners);
     }
 
     /**
@@ -98,6 +104,7 @@ public class GenericTicTacToe extends BoardGame {
         aggregators.addAll(diagonal);
         aggregators.addAll(vertical.values());
         aggregators.addAll(horizontal.values());
+        aggregators = Collections.unmodifiableList(aggregators);
     }
 
     private boolean isOnLeft2RightDiagonal(int row, int column) {
@@ -122,7 +129,13 @@ public class GenericTicTacToe extends BoardGame {
         return false;//no edge
     }
 
-    Map<BoardCellCoordinates, Set<Integer>> getWinningCoordinates() {
+    @Override
+    public List<BoardCellCoordinates> getCorners() {
+        return corners;
+    }
+
+    @Override
+    public Map<BoardCellCoordinates, Set<Integer>> getWinningCoordinates() {
         Map<BoardCellCoordinates, Set<Integer>> jackPot= new TreeMap<>();
         for (IncrementalShapeAggregator aggregator : aggregators) {
             for (Map.Entry<BoardCellCoordinates, Set<Integer>> item : aggregator.getWinningCoordinates().entrySet()) {
@@ -134,5 +147,13 @@ public class GenericTicTacToe extends BoardGame {
             }
         }
         return jackPot;
+    }
+
+    public List<IncrementalShapeAggregator> getAggregators() {
+        return aggregators;
+    }
+
+    public int getWiningSegmentLength() {
+        return winingSegmentLength;
     }
 }

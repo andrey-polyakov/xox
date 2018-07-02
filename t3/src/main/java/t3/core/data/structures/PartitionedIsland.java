@@ -38,7 +38,7 @@ public class PartitionedIsland {
 
     /**
      * Insert before the head and removes link to the other partition.
-     *
+     *TODO bug fix
      */
     PartitionedIsland mergeFromWest() {
         if (west == null) {
@@ -46,7 +46,14 @@ public class PartitionedIsland {
         }
         Node newHead = west.tail;
         head.previous = newHead;
-        west.shrinkTail();
+        if (west.getSize() > 1) {
+            west.shrinkTail();
+        } else {
+            west = west.west;
+            if (west != null) {
+                west.east = this;
+            }
+        }
         newHead.next = head;
         newHead.previous = null;
         head = newHead;
@@ -120,6 +127,7 @@ public class PartitionedIsland {
         Node oldTail = tail;
         tail = tail.previous;
         PartitionedIsland newEast = new PartitionedIsland(oldTail, forPlayerId, this);
+        islandMap.put(oldTail.getCoordinates(), newEast);
         oldTail.previous = null;
         if (tail != null) {
             tail.next = null;
@@ -130,6 +138,9 @@ public class PartitionedIsland {
     }
 
     public void absorbNeighbours(int newPlayerId) {
+        if (getSize() == 1) {
+            belongsTo = newPlayerId;
+        }
         if (west != null && west.belongsTo != null && west.belongsTo == newPlayerId) {
             west.tail.next = head;//connecting
             head.previous = west.tail;

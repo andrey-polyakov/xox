@@ -2,7 +2,9 @@ package t3.core.data.structures.aggregators;
 
 import t3.core.data.structures.BoardCell;
 import t3.core.data.structures.BoardCellCoordinates;
+import t3.core.engine.PrioritizedMove;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,7 +25,6 @@ public interface IncrementalShapeAggregator {
      * @return
      */
     Map<BoardCellCoordinates, Set<Integer>> getWinningCoordinates();
-
 
     /**
      * Add update to the aggregate.
@@ -69,4 +70,8 @@ public interface IncrementalShapeAggregator {
      * @param cell
      */
     void addCell(BoardCell cell);
+
+    boolean isCompletable();
+
+    PrioritizedMove getBestMoveFor(int player, int desiredLength);
 }

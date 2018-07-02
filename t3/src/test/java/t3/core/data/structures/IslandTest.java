@@ -146,6 +146,125 @@ public class IslandTest {
     }
 
     @Test
+    public void noMergeTest() {
+        StubAgg a = new StubAgg(4);
+        Integer PARROTS = 1;
+        Integer FLAMINGO = 2;
+        Integer PELICAN = 3;
+
+        BoardCell[] paradiseIsland = CellUtil.create1x4diagonal();
+        for (BoardCell cell : paradiseIsland) {
+            cell.addAggregator(a);
+        }
+        paradiseIsland[0].mark(PARROTS);
+        paradiseIsland[1].mark(PARROTS);
+        paradiseIsland[3].mark(PELICAN);
+        paradiseIsland[2].mark(FLAMINGO);
+
+        PartitionedIsland systemUnderTest = a.getIsland();                      //0
+        assertNotNull(systemUnderTest.getEast());
+        assertNull(systemUnderTest.getWest());
+        assertEquals(PARROTS, systemUnderTest.getBelongsTo());
+        assertEquals(2, systemUnderTest.getSize());
+
+        systemUnderTest = systemUnderTest.getEast();                            //1
+        assertEquals(FLAMINGO, systemUnderTest.getBelongsTo());
+        assertEquals(1, systemUnderTest.getSize());
+
+        systemUnderTest = systemUnderTest.getEast();                            //2
+        assertEquals(PELICAN, systemUnderTest.getBelongsTo());
+        assertEquals(1, systemUnderTest.getSize());
+    }
+
+    @Test
+    public void reversedNoMergeTest() {
+        StubAgg a = new StubAgg(4);
+        Integer PARROTS = 1;
+        Integer FLAMINGO = 2;
+        Integer PELICAN = 3;
+
+        BoardCell[] paradiseIsland = CellUtil.create1x4diagonal();
+        for (BoardCell cell : paradiseIsland) {
+            cell.addAggregator(a);
+        }
+        paradiseIsland[0].mark(FLAMINGO);
+        paradiseIsland[2].mark(PARROTS);
+        paradiseIsland[3].mark(PARROTS);
+        paradiseIsland[1].mark(PELICAN);
+
+        PartitionedIsland systemUnderTest = a.getIsland();                      //0
+        assertNotNull(systemUnderTest.getEast());
+        assertNull(systemUnderTest.getWest());
+        assertEquals(FLAMINGO, systemUnderTest.getBelongsTo());
+        assertEquals(1, systemUnderTest.getSize());
+
+        systemUnderTest = systemUnderTest.getEast();                            //1
+        assertEquals(PELICAN, systemUnderTest.getBelongsTo());
+        assertEquals(1, systemUnderTest.getSize());
+
+        systemUnderTest = systemUnderTest.getEast();                            //2
+        assertEquals(PARROTS, systemUnderTest.getBelongsTo());
+        assertEquals(2, systemUnderTest.getSize());
+    }
+
+    @Test
+    public void xcooTest() {
+        StubAgg a = new StubAgg(4);
+        Integer PARROTS = 1;
+        Integer FLAMINGO = 2;
+        Integer PELICAN = 3;
+
+        BoardCell[] paradiseIsland = CellUtil.create1x4diagonal();
+        for (BoardCell cell : paradiseIsland) {
+            cell.addAggregator(a);
+        }
+        paradiseIsland[0].mark(FLAMINGO);
+        paradiseIsland[2].mark(PARROTS);
+        paradiseIsland[3].mark(PELICAN);
+        paradiseIsland[1].mark(FLAMINGO);
+
+        PartitionedIsland systemUnderTest = a.getIsland();                      //0
+        assertNotNull(systemUnderTest.getEast());
+        assertNull(systemUnderTest.getWest());
+        assertEquals(FLAMINGO, systemUnderTest.getBelongsTo());
+        assertEquals(2, systemUnderTest.getSize());
+
+        systemUnderTest = systemUnderTest.getEast();                            //1
+        assertEquals(PARROTS, systemUnderTest.getBelongsTo());
+        assertEquals(1, systemUnderTest.getSize());
+
+        systemUnderTest = systemUnderTest.getEast();                            //2
+        assertEquals(PELICAN, systemUnderTest.getBelongsTo());
+        assertEquals(1, systemUnderTest.getSize());
+    }
+
+    @Test
+    public void mergeTest() {
+        StubAgg a = new StubAgg(4);
+        Integer PARROTS = 1;
+        Integer FLAMINGO = 2;
+
+        BoardCell[] paradiseIsland = CellUtil.create1x4();
+        for (BoardCell cell : paradiseIsland) {
+            cell.addAggregator(a);
+        }
+        paradiseIsland[0].mark(FLAMINGO);
+        paradiseIsland[1].mark(FLAMINGO);
+        paradiseIsland[3].mark(PARROTS);
+        paradiseIsland[2].mark(PARROTS);
+
+        PartitionedIsland systemUnderTest = a.getIsland();                      //0
+        assertNotNull(systemUnderTest.getEast());
+        assertNull(systemUnderTest.getWest());
+        assertEquals(FLAMINGO, systemUnderTest.getBelongsTo());
+        assertEquals(2, systemUnderTest.getSize());
+
+        systemUnderTest = systemUnderTest.getEast();                            //1
+        assertEquals(PARROTS, systemUnderTest.getBelongsTo());
+        assertEquals(2, systemUnderTest.getSize());
+    }
+
+    @Test
     public void fillTheGap2Test() {
         StubAgg a = new StubAgg(5);
         Integer WILD_BIRDS = 66;

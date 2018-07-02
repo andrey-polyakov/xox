@@ -15,4 +15,24 @@ public class CellUtil {
         };
         return newCells;
     }
+
+    public static BoardCell[] create1x4diagonal() {
+        BoardCell[] newCells = {
+                new BoardCell(new BoardCellCoordinates(0, 3)),
+                new BoardCell(new BoardCellCoordinates(1, 2)),
+                new BoardCell(new BoardCellCoordinates(2, 1)),
+                new BoardCell(new BoardCellCoordinates(3, 0))
+        };
+        return newCells;
+    }
+
+    public static BoardCell[] create1x4() {
+        BoardCell[] newCells = {
+                new BoardCell(new BoardCellCoordinates(0, 0)),
+                new BoardCell(new BoardCellCoordinates(1, 0)),
+                new BoardCell(new BoardCellCoordinates(2, 0)),
+                new BoardCell(new BoardCellCoordinates(3, 0))
+        };
+        return newCells;
+    }
 }

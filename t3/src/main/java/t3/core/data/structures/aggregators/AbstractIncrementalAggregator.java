@@ -3,6 +3,7 @@ package t3.core.data.structures.aggregators;
 import t3.core.data.structures.BoardCell;
 import t3.core.data.structures.BoardCellCoordinates;
 import t3.core.data.structures.PartitionedIsland;
+import t3.core.engine.PrioritizedMove;
 
 import java.util.*;
 
@@ -39,9 +40,11 @@ public abstract class AbstractIncrementalAggregator implements IncrementalShapeA
             return Collections.emptyMap();
         }
         PartitionedIsland current = island.getWestmostPoint();
-        int west = 0, center = 0, east = 0;
+        int west = 0, east = 0;
+        boolean anyFreeSpots = false;
         do {
             if (current.isFree()) {
+                anyFreeSpots = true;
                 BoardCellCoordinates winningCoordinate = current.getHead().getCoordinates();
                 // xx____ long gap
                 if (current.getWest() != null) {
@@ -71,7 +74,10 @@ public abstract class AbstractIncrementalAggregator implements IncrementalShapeA
             }
             current = current.getEast();
         } while (current != null);
-        return Collections.unmodifiableMap(winning);
+        if (winning.isEmpty()) {
+            completable = anyFreeSpots;
+        }
+        return winning;
     }
 
     private void recordWinner(BoardCellCoordinates coordinates, int winnerId) {
@@ -106,5 +112,56 @@ public abstract class AbstractIncrementalAggregator implements IncrementalShapeA
         island.add(cell);
     }
 
+    /**
+     * @return true if there is any free cells left
+     */
+    @Override
+    public boolean isCompletable() {
+        return completable;
+    }
 
+    @Override
+    public PrioritizedMove getBestMoveFor(int player, int desiredLength) {
+        PrioritizedMove prioritizedMove = null;
+        PartitionedIsland current = island.getWestmostPoint();
+        do {
+            if (current.isFree()) {
+                int priority = current.getSize();
+                if (current.getWest() != null) {
+                    if (current.getWest().getBelongsTo() == player) {
+                        priority += current.getWest().getSize();
+                        if (priority >= desiredLength) {
+                            priority = priority * 2;
+                        }
+                    } else {
+                        priority -= current.getWest().getSize();
+                        if (priority < desiredLength) {
+                            priority = 0;
+                        }
+                    }
+                }
+                if (current.getEast() != null) {
+                    if (current.getEast().getBelongsTo() == player) {
+                        priority += current.getEast().getSize();
+                        if (priority >= desiredLength) {
+                            priority = priority * 2;
+                        }
+                    } else {
+                        priority -= current.getEast().getSize();
+                        if (priority < desiredLength) {
+                            priority = 0;
+                        }
+                    }
+                }
+                if (prioritizedMove != null) {
+                    if (prioritizedMove.getPriority() < priority)
+                        prioritizedMove = new PrioritizedMove(priority, current.getHead().getCoordinates());
+                } else {
+                    prioritizedMove = new PrioritizedMove(priority, current.getHead().getCoordinates());
+                }
+            }
+            current = current.getEast();
+        } while (current != null);
+        return prioritizedMove;
+    }
 }
