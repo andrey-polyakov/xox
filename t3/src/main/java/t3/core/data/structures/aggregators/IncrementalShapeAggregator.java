@@ -71,7 +71,17 @@ public interface IncrementalShapeAggregator {
      */
     void addCell(BoardCell cell);
 
+    /**
+     * Any vacant cells?
+     * @return if there is any free slots
+     */
     boolean isCompletable();
 
+    /**
+     * Suggests a move for the given player and length of the segment.
+     * @param player who is the guy
+     * @param desiredLength size required to win
+     * @return
+     */
     PrioritizedMove getBestMoveFor(int player, int desiredLength);
 }

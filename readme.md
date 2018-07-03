@@ -30,14 +30,17 @@ Strategy is a concept that leverages two classes of aggregator output, namely, w
 Regarding winning coordinates, basic strategy implemented in this project uses those to win should there be such an 
 opportunity or to prevent opponents from winning the following turn. In case of multiple threats it picks the one
 providing opportunity to multiple opponents.
-<br>
+##Prioritized moves
 In less exciting scenario, the strategy favours shapes already started by the computer and devalues shapes which will
 never lead to victory. For instance, among the following combination the first one is best as it progressed more than the others 
 and has enough slots for hypothetical victory.
 <br>
-OOO___ - best<br>
+Based on several factors each cell is rated and the best rated cell is selected by the computer.
+<br>
+OOO___ - best, minimum possible number of empty cells combined with cells of the player<br>
+OO____ - second best because it is shorter<br>
 O___X_ - spoiled, not winnable<br>
-XXX___ - just as bas as the one above<br>
+XXX___ - just as bas as the one above because there is no cells of our player<br>
  
 ##Room for improvement
 
