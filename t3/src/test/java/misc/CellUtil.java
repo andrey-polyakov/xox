@@ -3,6 +3,9 @@ package misc;
 import t3.core.data.structures.BoardCell;
 import t3.core.data.structures.BoardCellCoordinates;
 
+/**
+ * Reusable inputs for partitioned island.
+ */
 public class CellUtil {
 
     public static BoardCell[] create1x5() {

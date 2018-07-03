@@ -10,8 +10,8 @@ import java.util.TreeMap;
  * Players carve this "Island" to get partitions for themselves as they make moves.
  * <br><br>
  * As for time complexity, the need to iterate over each cell(node) is alleviated by partitioning cells which
- * makes traversal a Log N task. In case of single-partitioned nodes the task may still be reduced as there is no need
- * to go over all of them to figure there is no winning combination.
+ * makes traversal a Log N task. In case of single-partitioned nodes the task is reduced at aggregator level
+ * as there is no need to go over all of them to figure there is no winning combination which is done.
  */
 public class PartitionedIsland {
     private Map<BoardCellCoordinates, Node> nodes = new TreeMap();
@@ -156,7 +156,7 @@ public class PartitionedIsland {
 
     /**
      * This splits, merges and creates new partitions and may return new reference to this island.
-     *
+     * //TODO refactor this as reference is no longer needs to be returned
      * @param coordinates taken cell coordinates
      * @param newPlayerId
      */

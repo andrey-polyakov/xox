@@ -8,7 +8,14 @@ import t3.core.data.structures.aggregators.XOXAggregators;
 import java.util.*;
 
 /**
- * Implements rules of tic-tac-toe on a square board.
+ * Implements rules of tic-tac-toe on a square board. To be specific this is n-m-k-p game,<br>
+ *     where
+ *     <br>
+ *         <ul>n - size of one edge of the rectangular</ul>
+ *         <ul>m - size of the edge of the rectangular</ul>
+ *         <ul>k - wining segment size</ul>
+ *         <ul>p - number of players</ul>
+ *
  */
 public class GenericTicTacToe extends BoardGame {
 

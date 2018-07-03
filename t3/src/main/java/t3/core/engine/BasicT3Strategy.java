@@ -6,12 +6,12 @@ import t3.core.data.structures.aggregators.IncrementalShapeAggregator;
 import java.util.Map;
 import java.util.Set;
 
-public class BasicT3Stratagy implements Strategy {
+public class BasicT3Strategy implements Strategy {
 
     private int playerId;
     private GenericTicTacToe game;
 
-    public BasicT3Stratagy(int playerId, GenericTicTacToe game) {
+    public BasicT3Strategy(int playerId, GenericTicTacToe game) {
         this.playerId = playerId;
         this.game = game;
     }
@@ -36,10 +36,6 @@ public class BasicT3Stratagy implements Strategy {
         if (selection != null) {
             return selection;
         }
-//TODO
-//If, on the next move, my opponent can set up a fork, block that possibility by moving into the square that is common to his two winning combinations.
-//
-// If I can make a move that will set up a winning combination for myself, do it. But ensure that this move does not force the opponent into establishing a fork.
         PrioritizedMove bestMove = null;
         for (IncrementalShapeAggregator o : game.getAggregators()) {
             if (o.isCompletable()) {

@@ -1,7 +1,7 @@
 package t3.core.controller;
 
 import t3.core.data.structures.BoardCellCoordinates;
-import t3.core.engine.BasicT3Stratagy;
+import t3.core.engine.BasicT3Strategy;
 import t3.core.engine.GenericTicTacToe;
 import t3.core.engine.Strategy;
 
@@ -72,7 +72,7 @@ public class T3Controller {
         Map<Integer, String> playersSetup = readConfiguration();
         view.setPlayerToIcons(playersSetup);
         t3 = new GenericTicTacToe(playersSetup.keySet(), size, size, true);
-        strategy = new BasicT3Stratagy(COMPUTER_ID, t3);
+        strategy = new BasicT3Strategy(COMPUTER_ID, t3);
         playersSetup.put(null, "_");
     }
 
