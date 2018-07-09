@@ -1,15 +1,15 @@
 XOX
 
-#How to run
+# How to run
 Just call main method of T3controller. If there is t3.properties in the classpath properties will ne read, otherwise default values will apply.
 In order to specify folder containing the file set -DconfigFolder=folder
 
-#Overview
+# Overview
 There is a number of moving parts in this engine. On the higher level there is a controller, view and the game itself.
 Game enforces that nothing goes against the rules, governs turn order and such. Also, there is an important part called
 strategy which leverages internal data structures of the game (covered below).
 
-##Game engine at a lower level
+## Game engine at a lower level
 Game assumes cells of the board form shapes. For example, those could be diagonals, vertical
 and horizontal lines. THe very same cells may belong to multiple shapes. Potentially, other shapes may be easily accommodated.
 
@@ -23,7 +23,7 @@ cuts allows Log(n) traversal of the partitions in which we are interested at hig
 task into smaller sub-tasks.
 
 
-#Strategy
+# Strategy
 Strategy is a concept that leverages two classes of aggregator output, namely, winning coordinates and best move.
 <br>
 <br>
@@ -42,7 +42,7 @@ OO____ - second best because it is shorter<br>
 O___X_ - spoiled, not winnable<br>
 XXX___ - just as bas as the one above because there is no cells of our player<br>
  
-##Room for improvement
+## Room for improvement
 
 Implement the following strategies:
 
@@ -52,5 +52,5 @@ Implement the following strategies:
 
 Refine layers and interfaces. Improve test coverage of higher level classes.
 
-#Other notes
+# Other notes
 Typically, I use either groovy or Lombok to auto-generate boilerplate code such as getter & setters.
