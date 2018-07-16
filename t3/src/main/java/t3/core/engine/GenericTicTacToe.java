@@ -35,11 +35,6 @@ public class GenericTicTacToe extends BoardGame {
         winingSegmentLength = winingLength;
         remainingCells = edgeLength * edgeLength;
         initializeBoard();
-        corners.add(cells[0][0].getCoordinates());
-        corners.add(cells[0][cells[0].length - 1].getCoordinates());
-        corners.add(cells[cells[0].length - 1][0].getCoordinates());
-        corners.add(cells[cells[0].length - 1][cells[0].length - 1].getCoordinates());
-        corners = Collections.unmodifiableList(corners);
     }
 
     /**
@@ -55,7 +50,6 @@ public class GenericTicTacToe extends BoardGame {
         Map<Integer, IncrementalShapeAggregator> left2RightDiagonalIndices2 = new TreeMap<>();
         Map<Integer, IncrementalShapeAggregator> right2LeftDiagonalIndices1 = new TreeMap<>();
         Map<Integer, IncrementalShapeAggregator> right2LeftDiagonalIndices2 = new TreeMap<>();
-
         for (int row = 0; row < edgeLength; row++) {
             //handling horizontal sequences
             IncrementalShapeAggregator horizontalAggregator = XOXAggregators.newRowAggregator(winingSegmentLength);
@@ -108,10 +102,25 @@ public class GenericTicTacToe extends BoardGame {
             right2LeftDiagonalIndices1.putAll(right2LeftDiagonalIndices2);
             right2LeftDiagonalIndices2.clear();
         }
+        IncrementalShapeAggregator cornerAggregator = initializeCornerAggregator();
+        aggregators.add(cornerAggregator);
         aggregators.addAll(diagonal);
         aggregators.addAll(vertical.values());
         aggregators.addAll(horizontal.values());
         aggregators = Collections.unmodifiableList(aggregators);
+    }
+
+    private IncrementalShapeAggregator initializeCornerAggregator() {
+        corners.add(cells[0][0].getCoordinates());
+        corners.add(cells[0][cells[0].length - 1].getCoordinates());
+        corners.add(cells[cells[0].length - 1][0].getCoordinates());
+        corners.add(cells[cells[0].length - 1][cells[0].length - 1].getCoordinates());
+        corners = Collections.unmodifiableList(corners);
+        IncrementalShapeAggregator cornerAggregator = XOXAggregators.newCornerAggregator(this);
+        for (BoardCellCoordinates coordinates : corners) {
+            getCell(coordinates).addAggregator(cornerAggregator);
+        }
+        return cornerAggregator;
     }
 
     private boolean isOnLeft2RightDiagonal(int row, int column) {

@@ -52,6 +52,14 @@ public interface IncrementalShapeAggregator {
     }
 
     /**
+     * True if track all corners.
+     * @return
+     */
+    default boolean isAllCorners() {
+        return false;
+    }
+
+    /**
      * True if this aggregator tracks a diagonal.
      * @return
      */

@@ -80,7 +80,7 @@ public abstract class AbstractIncrementalAggregator implements IncrementalShapeA
         return winning;
     }
 
-    private void recordWinner(BoardCellCoordinates coordinates, int winnerId) {
+    protected void recordWinner(BoardCellCoordinates coordinates, int winnerId) {
         Set<Integer> winners = winning.getOrDefault(coordinates, new TreeSet<>());
         winners.add(winnerId);
         winning.put(coordinates, winners);

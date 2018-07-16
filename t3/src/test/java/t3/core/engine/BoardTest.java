@@ -16,6 +16,8 @@ import static org.junit.Assert.assertNull;
 public class BoardTest {
 
     public static final int WINNING_SCORE = 3;
+    public static final int WINNING_CLASSES = 4;
+
     private Set<Integer> players = new TreeSet<>();
     private Set<Integer> trio = new TreeSet<>();
 
@@ -38,9 +40,34 @@ public class BoardTest {
                 new BoardCellCoordinates(0, 4),
                 new BoardCellCoordinates(0, 3)
         };
-        iterateAndAssert(systemUnderTest, coordinates, 3);
         BoardCell center = systemUnderTest.getCell(new BoardCellCoordinates(2, 2));
         assertEquals("Should have been 2 diagonals + 1 row + 1 column = 4",4,  center.getAggregators().size());
+    }
+
+    @Test
+    public void cornerAggregatorInitializationTest() {
+        GenericTicTacToe systemUnderTest = new GenericTicTacToe(players, 5, 4, false);
+        BoardCellCoordinates[] coordinates = {
+                // left to right diagonal
+                new BoardCellCoordinates(0, 0),
+                new BoardCellCoordinates(0, 4),
+                // right to left diagonal
+                new BoardCellCoordinates(4, 4),
+                new BoardCellCoordinates(4, 0)
+        };
+        assertCornerAggregatorInitialization(systemUnderTest, coordinates, WINNING_CLASSES);
+        for(int i = 0; i < 3; i++) {
+            systemUnderTest.getCell(coordinates[i]).mark(1);
+        }
+        assertEquals("Player 1 expected to win when he takes all corners", Integer.valueOf(1), systemUnderTest.takeTurn(coordinates[3]));
+        assertEquals("Player 1 expected to win when he takes all corners", Integer.valueOf(1),  systemUnderTest.getWinner());
+    }
+
+    private void assertCornerAggregatorInitialization(GenericTicTacToe systemUnderTest, BoardCellCoordinates[] coordinates, int expected) {
+        for (BoardCellCoordinates coordinate : coordinates) {
+            BoardCell cell = systemUnderTest.getCell(coordinate);
+            assertTrue(coordinate.toString(), cell.getAggregators().stream().anyMatch(item -> item.isAllCorners()));
+        }
     }
 
     @Test
@@ -54,7 +81,6 @@ public class BoardTest {
                 new BoardCellCoordinates(3, 0),
                 new BoardCellCoordinates(4, 3)
         };
-        iterateAndAssert(systemUnderTest, coordinates, 3);
         BoardCellCoordinates [] coordinates1 = {
                 // double diagonals
                 new BoardCellCoordinates(0, 2),
@@ -66,7 +92,7 @@ public class BoardTest {
                 new BoardCellCoordinates(2, 3),
                 new BoardCellCoordinates(3, 2)
         };
-        iterateAndAssert(systemUnderTest, coordinates1, 4);
+        iterateAndAssert(systemUnderTest, coordinates1, WINNING_CLASSES);
 
         BoardCell center = systemUnderTest.getCell(new BoardCellCoordinates(3, 0));
         assertEquals(3,  center.getAggregators().size());// row & column, only

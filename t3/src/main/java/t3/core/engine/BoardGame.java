@@ -80,7 +80,7 @@ public abstract class BoardGame {
      * @param coordinates
      * @return
      */
-    BoardCell getCell(BoardCellCoordinates coordinates) {
+    public BoardCell getCell(BoardCellCoordinates coordinates) {
         return cells[coordinates.getRow()][coordinates.getColumn()];
     }
 
